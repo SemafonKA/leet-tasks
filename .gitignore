@@ -1,3 +1,8 @@
+# All files from build folder
+build/
+
+.cache/
+
 # Prerequisites
 *.d
 
