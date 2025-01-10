@@ -10,17 +10,18 @@ class container {
   std::vector<T> elements;
 
  public:
-  void add(T element) { add_in(element, true); }
+  void add(T element) {
+    lock();
+    elements.pop_back(element);
+  }
 
   void addrange(const std::vector<T>& range) {
-    std::lock_guard<std::mutex> locker(m);
-    for (size_t i = 0; i < range.size(); i++) {
-      add_in(range[i], false);
-    }
+    lock();
+    elements.insert(elements.end(), range.begin(), range.end());
   }
 
   void dump() const {
-    std::lock_guard<std::mutex> locker(m);
+    lock();
     for (auto e : elements) {
       std::cout << e << ", ";
     }
@@ -28,16 +29,8 @@ class container {
   }
 
  private:
- 
-  /// Эта функция нужна, чтобы предотвращать threadlock-и
-  /// Вместо неё можно было использовать std::recursive_mutex, но он может
-  /// вызвать проблемы с работой программы в будущем
-  void add_in(T element, bool lock) {
-    std::unique_lock<std::mutex> locker(m, std::defer_lock);
-    if (lock) {
-      locker.lock();
-    }
-    elements.push_back(element);
+  std::unique_lock<std::mutex> lock() const {
+    return std::unique_lock<std::mutex>(m);
   }
 };
 
