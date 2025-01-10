@@ -2,43 +2,49 @@
 #include <chrono>
 
 class Timer {
-public:
-    inline Timer() {
-        start();
-    }
+ public:
+  inline Timer() { start(); }
 
-    void inline start() {
-        startTime = std::chrono::system_clock::now();
-        isRunning = true;
-    }
+  inline void start() {
+    startTime = std::chrono::system_clock::now();
+    isRunning = true;
+  }
 
-    inline void stop() {
-        endTime = std::chrono::system_clock::now();
-        isRunning = false;
-    }
+  inline void stop() {
+    endTime = std::chrono::system_clock::now();
+    isRunning = false;
+  }
 
-    [[nodiscard]]
-    inline auto elapsedMilliseconds() const -> int64_t {
-        auto end = isRunning ? std::chrono::system_clock::now() : endTime;
+  [[nodiscard]]
+  inline int64_t elapsedMilliseconds() const {
+    using std::chrono::duration_cast;
+    using std::chrono::milliseconds;
+    using std::chrono::system_clock;
 
-        return std::chrono::duration_cast<std::chrono::milliseconds>(end - startTime).count();
-    }
+    auto end = isRunning ? system_clock::now() : endTime;
 
-    [[nodiscard]]
-    inline auto elapsedMicroseconds() const -> int64_t {
-        auto end = isRunning ? std::chrono::system_clock::now() : endTime;
+    return duration_cast<milliseconds>(end - startTime).count();
+  }
 
-        return std::chrono::duration_cast<std::chrono::microseconds>(end - startTime).count();
-    }
-    
-    [[nodiscard]]
-    inline auto elapsedSeconds() const -> double {
-        return static_cast<double>(elapsedMilliseconds()) / 1000.0;
-    }
+  [[nodiscard]]
+  inline int64_t elapsedMicroseconds() const {
+    using std::chrono::duration_cast;
+    using std::chrono::microseconds;
+    using std::chrono::system_clock;
 
-private:
-    std::chrono::time_point<std::chrono::system_clock> startTime;
-    std::chrono::time_point<std::chrono::system_clock> endTime;
+    auto end = isRunning ? system_clock::now() : endTime;
 
-    bool isRunning = false;
+    return duration_cast<microseconds>(end - startTime).count();
+  }
+
+  [[nodiscard]]
+  inline double elapsedSeconds() const {
+    return static_cast<double>(elapsedMilliseconds()) / 1000.0;
+  }
+
+ private:
+  std::chrono::time_point<std::chrono::system_clock> startTime;
+  std::chrono::time_point<std::chrono::system_clock> endTime;
+
+  bool isRunning = false;
 };
