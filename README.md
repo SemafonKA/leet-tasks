@@ -11,3 +11,7 @@
 Также, каждая ветка будет иметь описание задачи, описанном в данном файле в пункте, расположенном ниже.
 
 ## Описание задачи
+
+[LeetCode 1115.Print FooBar Alternately](https://leetcode.com/problems/print-foobar-alternately/)
+
+
