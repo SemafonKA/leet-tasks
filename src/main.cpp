@@ -1,38 +1,59 @@
-#include <format>
-#include <future>
+
 #include <iostream>
-#include <numeric>
+#include <mutex>
+#include <thread>
+#include <vector>
 
-#include "timer.hpp"
+template <typename T>
+class container {
+  mutable std::mutex m;
+  std::vector<T> elements;
 
-using namespace std;
+ public:
+  void add(T element) { add_in(element, true); }
 
-template <typename RandomIt> int parallel_sum(RandomIt beg, RandomIt end) {
-    auto len = end - beg;
-    if (len < 2'000'000) {
-        return std::accumulate(beg, end, 0);
+  void addrange(const std::vector<T>& range) {
+    std::lock_guard<std::mutex> locker(m);
+    for (size_t i = 0; i < range.size(); i++) {
+      add_in(range[i], false);
     }
-    auto mid = beg + len / 2;
-    auto handle = std::async(std::launch::async, parallel_sum<RandomIt>, mid, end);
-    int sum = parallel_sum(beg, mid);
-    return sum + handle.get();
+  }
+
+  void dump() const {
+    std::lock_guard<std::mutex> locker(m);
+    for (auto e : elements) {
+      std::cout << e << ", ";
+    }
+    std::cout << '\n';
+  }
+
+ private:
+ 
+  /// Эта функция нужна, чтобы предотвращать threadlock-и
+  /// Вместо неё можно было использовать std::recursive_mutex, но он может
+  /// вызвать проблемы с работой программы в будущем
+  void add_in(T element, bool lock) {
+    std::unique_lock<std::mutex> locker(m, std::defer_lock);
+    if (lock) {
+      locker.lock();
+    }
+    elements.push_back(element);
+  }
+};
+
+void threadFunction(container<int>& c) {
+  c.addrange({3, rand(), rand(), rand()});
 }
 
 int main() {
-    std::vector<int> v(10000000, 1);
-    auto timer = Timer();
-
-    cout << "One thread sum\n";
-    timer.start();
-    auto res = std::accumulate(v.begin(), v.end(), 0);
-    timer.stop();
-    cout << format("    Result: {}, time: {} micros\n", res, timer.elapsedMicroseconds());
-
-    cout << "Multi threads sum\n";
-    timer.start();
-    res = parallel_sum(v.begin(), v.end());
-    timer.stop();
-    cout << format("    Result: {}, time: {} micros\n", res, timer.elapsedMicroseconds());
-
-    return 0;
+  srand((unsigned int)time(0));
+  container<int> cntr;
+  std::thread t1(threadFunction, std::ref(cntr));
+  std::thread t2(threadFunction, std::ref(cntr));
+  std::thread t3(threadFunction, std::ref(cntr));
+  t1.join();
+  t2.join();
+  t3.join();
+  cntr.dump();
+  return 0;
 }
