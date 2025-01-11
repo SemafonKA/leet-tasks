@@ -19,7 +19,7 @@ class FooBar {
   void foo(function<void()> printFoo) {
     std::unique_lock lock(m);
     for (int i = 0; i < n; i++) {
-      cv.wait(lock, [&]{return isFooTurn;});
+      cv.wait(lock, [&] { return isFooTurn; });
       printFoo();
       isFooTurn = false;
       cv.notify_all();
@@ -29,7 +29,7 @@ class FooBar {
   void bar(function<void()> printBar) {
     std::unique_lock lock(m);
     for (int i = 0; i < n; i++) {
-      cv.wait(lock, [&]{return !isFooTurn;});
+      cv.wait(lock, [&] { return !isFooTurn; });
       printBar();
       isFooTurn = true;
       cv.notify_all();
