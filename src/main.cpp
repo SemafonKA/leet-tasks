@@ -12,7 +12,7 @@ class container {
  public:
   void add(T element) {
     lock();
-    elements.pop_back(element);
+    elements.push_back(element);
   }
 
   void addrange(const std::vector<T>& range) {
