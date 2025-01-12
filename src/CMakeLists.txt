@@ -8,7 +8,10 @@ add_executable(${PROJECT_NAME}
     ${ALL_SRC}
 )
 
+add_subdirectory(Parallel)
+
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
     leet_tasks_options
+    Parallel
 )
