@@ -11,3 +11,5 @@
 Также, каждая ветка будет иметь описание задачи, описанном в данном файле в пункте, расположенном ниже.
 
 ## Описание задачи
+
+[LeetCode 26. Remove duplicates from sorted array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
