@@ -11,3 +11,5 @@
 Также, каждая ветка будет иметь описание задачи, описанном в данном файле в пункте, расположенном ниже.
 
 ## Описание задачи
+
+[LeetCode 1400. Construct K palindrome strings](https://leetcode.com/problems/construct-k-palindrome-strings)
