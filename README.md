@@ -12,4 +12,4 @@
 
 ## Описание задачи
 
-[LeetCode 26. Remove duplicates from sorted array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
+[LeetCode 80. Remove duplicates from sorted array II](https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/)
