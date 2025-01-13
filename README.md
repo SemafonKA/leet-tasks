@@ -12,6 +12,6 @@
 
 ## Описание задачи
 
-[LeetCode 121. Best time to buy and sell stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock)
+[LeetCode 122. Best time to buy and sell stock II](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/)
 
-Опять же две реализации, обе по-своему интересны. Но в рамках данной задачи нужна была именно вторая, простая. Я до неё не додумался - думал о максимуме вместо максимальной выгоды, из-за чего вся логика рассуждений ломалась.
+
