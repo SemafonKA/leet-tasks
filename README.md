@@ -11,3 +11,10 @@
 Также, каждая ветка будет иметь описание задачи, описанном в данном файле в пункте, расположенном ниже.
 
 ## Описание задачи
+
+[LeetCode 169. Majority Element](https://leetcode.com/problems/majority-element/)
+
+Имеет два возможных решения:
+
+- HashMap (простой, но требует дополнительную память)
+- [Boyer Moore Voting Algorithm](https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore_majority_vote_algorithm) (не требует доп память, но это чистая математика)
