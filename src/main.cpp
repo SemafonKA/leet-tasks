@@ -115,7 +115,105 @@ int maxProfit(vector<int>& prices) {
   return max1 + max2;
 }
 
-void testIt(std::vector<int>& prices, int expected, function<int(vector<int>&)> func) {
+int foundMax(vector<int>& prices, std::vector<std::pair<int, int>>& minmaxes) {
+  // Идём с конца и получаем максимумы для предыдущих пар чисел
+  // (поскольку максимум справа подходит для левого минимума)
+  for (int i = static_cast<int>(minmaxes.size()) - 1; i > 0; --i) {
+    auto& curr = minmaxes[i];
+    auto& prev = minmaxes[i - 1];
+    if (prices[curr.second] > prices[prev.second]) {
+      prev.second = curr.second;
+    }
+  }
+
+  // Перебираем все мини-максные пары, находим максимальную выгоду
+  auto maxDelta = 0;
+  for (size_t i = 0; i < minmaxes.size(); i++) {
+    auto& curr = minmaxes[i];
+    maxDelta = std::max(prices[curr.second] - prices[curr.first], maxDelta);
+  }
+
+  return maxDelta;
+}
+
+// С точки зрения практичности, решение как будто бы неплохое.
+// На выходе получаем все точки и точно знаем, где будет макс прибыль.
+// Но чёрт возьми слишком громоздкое, да и по памяти место занимает.
+int maxProfitBrutforce(vector<int>& prices) {
+  std::vector<std::pair<int, int>> minmaxes;
+  int min = 0;
+  int max = -1;
+
+  // Сохраняем все инфинумы-экстремумы
+  for (size_t i = 1; i < prices.size(); i++) {
+    if (max == -1) {
+      if (prices[min] >= prices[i]) {
+        min = i;
+      } else {
+        max = i;
+      }
+      continue;
+    }
+
+    if (prices[max] <= prices[i]) {
+      max = i;
+    } else {
+      minmaxes.push_back(std::make_pair(min, max));
+      min = i;
+      max = -1;
+    }
+  }
+
+  // В случае, если нашли максимум, но спуска вниз не было
+  if (max != -1) {
+    minmaxes.push_back(std::make_pair(min, max));
+  }
+
+  auto maxprof = 0;
+  for (size_t i = 0; i < minmaxes.size(); ++i) {
+    std::vector<std::pair<int, int>> leftMinMaxes;
+    std::vector<std::pair<int, int>> RightMinMaxes;
+
+    leftMinMaxes.insert(leftMinMaxes.end(), minmaxes.begin(),
+                        minmaxes.begin() + i);
+    RightMinMaxes.insert(RightMinMaxes.end(), minmaxes.begin() + i,
+                         minmaxes.end());
+
+    auto leftMax = foundMax(prices, leftMinMaxes);
+    auto rightMax = foundMax(prices, RightMinMaxes);
+    maxprof = std::max(maxprof, leftMax + rightMax);
+  }
+
+  // auto fullMax = foundMax(prices, minmaxes);
+  // return std::max(maxprof, fullMax);
+  return maxprof;
+}
+
+int maxProfitRange(vector<int>& prices, size_t from, size_t to) {
+  int min_price = prices[from];
+  int maxprof = 0;
+
+  for (size_t i = from + 1; i < to; i++) {
+    maxprof = max(maxprof, prices[i] - min_price);
+    min_price = min(prices[i], min_price);
+  }
+  return maxprof;
+}
+
+int maxProfitBrutforceInplace(vector<int>& prices) {
+  auto size = prices.size();
+  auto max = 0;
+  for (size_t i = 0; i < size; ++i) {
+    auto leftMaxProfit = maxProfitRange(prices, 0, i);
+    auto rightMaxProfit = maxProfitRange(prices, i, size);
+    max = std::max(max, leftMaxProfit + rightMaxProfit);
+  }
+
+  return max;
+}
+
+void testIt(std::vector<int>& prices, int expected,
+            function<int(vector<int>&)> func) {
   constexpr size_t split_by = 5;
   auto tests = prices;
   auto res = func(tests);
@@ -251,6 +349,18 @@ int main() {
 
   for (auto& test : tests) {
     testIt(test.second, test.first, maxProfit);
+  }
+
+  std::cout << "\n\n***** MAX PROFIT BRUTFORCE *****\n\n";
+
+  for (auto& test : tests) {
+    testIt(test.second, test.first, maxProfitBrutforce);
+  }
+
+  std::cout << "\n\n***** MAX PROFIT BRUTFORCE IN-PLACE *****\n\n";
+
+  for (auto& test : tests) {
+    testIt(test.second, test.first, maxProfitBrutforceInplace);
   }
 
   return 0;
