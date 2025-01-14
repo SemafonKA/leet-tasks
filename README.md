@@ -12,6 +12,6 @@
 
 ## Описание задачи
 
-[LeetCode 122. Best time to buy and sell stock II](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/)
+[LeetCode 123. Best time to buy and sell stock III](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/)
 
 
