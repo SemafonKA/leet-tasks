@@ -1,31 +1,52 @@
-#include <algorithm>
 #include <format>
 #include <iostream>
+#include <random>
 #include <sstream>
+#include <unordered_map>
 #include <vector>
 
 using namespace std;
 
-int hIndex(vector<int>& citations) {
-  int maxCitations = *std::max_element(citations.begin(), citations.end());
-  int numbersSize = std::min(maxCitations, static_cast<int>(citations.size()));
-  auto elems = std::vector<int>(numbersSize + 1);
+class RandomizedSet {
+ public:
+  RandomizedSet() { mt = mt19937(rd()); }
 
-  for (auto citCount : citations) {
-    auto val = std::min(citCount, numbersSize);
-    if (val == 0) continue;
-    elems[val] += 1;
-  }
-
-  for (int i = numbersSize; i > 0; --i) {
-    if (elems[i] >= i) {
-      return i;
+  bool insert(int val) {
+    if (elementIndices.contains(val)) {
+      return false;
     }
-    elems[i - 1] += elems[i];
+    elementIndices[val] = elements.size();
+    elements.push_back(val);
+    return true;
   }
 
-  return elems[0];
-}
+  bool remove(int val) {
+    if (!elementIndices.contains(val)) {
+      return false;
+    }
+
+    auto ind = elementIndices[val];
+    elements[ind] = elements[elements.size() - 1];
+    elementIndices[elements[ind]] = ind;
+    elementIndices.erase(val);
+    elements.pop_back();
+
+    return true;
+  }
+
+  int getRandom() {
+    auto ud = std::uniform_int_distribution<>(0, elements.size() - 1);
+    auto randIndex = ud(mt);
+    return elements.at(randIndex);
+  }
+
+ private:
+  std::unordered_map<int, int> elementIndices;
+  std::vector<int> elements;
+
+  std::random_device rd;
+  std::mt19937 mt;
+};
 
 template <typename T>
 string to_string(const std::vector<T>& vec) {
@@ -53,34 +74,17 @@ string to_string(const std::vector<T>& vec) {
   return oss.str();
 }
 
-void testFunction(vector<pair<int, vector<int>>>& tests) {
-  size_t i = 0;
-  for (auto& [expected, testVec] : tests) {
-    auto received = hIndex(testVec);
-
-    cout << format("\n Test {}: ", i);
-    if (received == expected) {
-      cout << format("- pass");
-    } else {
-      cout << to_string(testVec) << "\n";
-      cout << format("  Expected: {}\n", expected);
-      cout << format("  Received: {}\n", received);
-    }
-
-    ++i;
-  }
-}
-
 int main() {
-  cout << "Warning: Last test is bad for demostration";
-
-  auto tests = vector<pair<int, vector<int>>>();
-  tests.push_back({3, {3, 0, 6, 1, 5}});
-  tests.push_back({1, {1, 3, 1}});
-  tests.push_back({0, {0}});
-  tests.push_back({1, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}});
-
-  testFunction(tests);
+  auto rs = RandomizedSet();
+  std::cout << rs.insert(1) << ' ';
+  std::cout << rs.remove(2) << ' ';
+  std::cout << rs.insert(2) << ' ';
+  std::cout << rs.getRandom() << ' ';
+  std::cout << rs.getRandom() << ' ';
+  std::cout << rs.getRandom() << ' ';
+  std::cout << rs.remove(1) << ' ';
+  std::cout << rs.insert(2) << ' ';
+  std::cout << rs.getRandom() << '\n';
 
   return 0;
 }
