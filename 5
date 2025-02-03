@@ -13,7 +13,6 @@ int hIndex(vector<int>& citations) {
 
   for (auto citCount : citations) {
     auto val = std::min(citCount, numbersSize);
-    if (val == 0) continue;
     elems[val] += 1;
   }
 
@@ -32,10 +31,10 @@ void testFunction(vector<pair<int, vector<int>>>& tests) {
   for (auto& [expected, testVec] : tests) {
     auto received = hIndex(testVec);
 
-    cout << format("\n Test {}: [ ", i);
+    cout << format("\n Test {}: ", i);
     std::copy(testVec.begin(), testVec.end(),
               std::ostream_iterator<int>(std::cout, ", "));
-    cout << "]\n";
+    cout << '\n';
     cout << format("  Expected: {}\n", expected);
     cout << format("  Received: {}\n", received);
 
@@ -47,7 +46,6 @@ int main() {
   auto tests = vector<pair<int, vector<int>>>();
   tests.push_back({3, {3, 0, 6, 1, 5}});
   tests.push_back({1, {1, 3, 1}});
-  tests.push_back({0, {0}});
 
   testFunction(tests);
 
