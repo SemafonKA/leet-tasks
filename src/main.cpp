@@ -8,7 +8,7 @@ int main() {
 
   cout << "Preparing task\n";
 
-  auto nextFuture = tp.enqueueSimple([]() {
+  auto nextFuture = tp.enqueue([]() {
     cout << "Second task is here!\n";
     return 0;
   });

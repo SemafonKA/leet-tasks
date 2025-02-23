@@ -13,7 +13,7 @@ class ThreadPool {
   ~ThreadPool();
 
   template <typename F>
-  auto enqueueSimple(F&& callback) -> std::future<decltype(callback())>;
+  auto enqueue(F&& callback) -> std::future<decltype(callback())>;
 
   ThreadPool(ThreadPool&) = delete;
   ThreadPool(const ThreadPool&) = delete;
@@ -30,8 +30,7 @@ class ThreadPool {
 };
 
 template <typename F>
-auto ThreadPool::enqueueSimple(F&& callback)
-    -> std::future<decltype(callback())> {
+auto ThreadPool::enqueue(F&& callback) -> std::future<decltype(callback())> {
   using retType = decltype(callback());
   auto task_ptr = std::make_shared<std::packaged_task<retType()>>(callback);
 
