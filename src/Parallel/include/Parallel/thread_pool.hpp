@@ -15,7 +15,7 @@ class ThreadPool {
   template <typename F>
   auto enqueue(F&& callback) -> std::future<decltype(callback())>;
 
-  ThreadPool(ThreadPool&) = delete;
+  ThreadPool(ThreadPool&&) = delete;
   ThreadPool(const ThreadPool&) = delete;
   ThreadPool& operator=(ThreadPool&&) = delete;
   ThreadPool& operator=(const ThreadPool&) = delete;
