@@ -13,7 +13,7 @@ void ThreadPool::worker() {
   for (;;) {
     std::function<void()> cur_task;
     {
-      std::unique_lock<std::mutex> lock(mtx);
+      auto lock = std::unique_lock(mtx);
       cv.wait(lock, [this]() { return stop || !queue.empty(); });
 
       if (stop && queue.empty()) break;
