@@ -1,86 +1,90 @@
-#include <algorithm>
 #include <format>
 #include <iostream>
-#include <sstream>
-#include <vector>
+#include <list>
 
-using namespace std;
+class IObserver {
+ public:
+  virtual void update() = 0;
+};
 
-int hIndex(vector<int>& citations) {
-  int maxCitations = *std::max_element(citations.begin(), citations.end());
-  int numbersSize = std::min(maxCitations, static_cast<int>(citations.size()));
-  auto elems = std::vector<int>(numbersSize + 1);
+class IObservable {
+ public:
+  void addObserver(IObserver *observer) { _observers.push_back(observer); }
 
-  for (auto citCount : citations) {
-    auto val = std::min(citCount, numbersSize);
-    if (val == 0) continue;
-    elems[val] += 1;
-  }
-
-  for (int i = numbersSize; i > 0; --i) {
-    if (elems[i] >= i) {
-      return i;
+  void notifyUpdate() {
+    for (auto &observer : _observers) {
+      observer->update();
     }
-    elems[i - 1] += elems[i];
   }
 
-  return elems[0];
-}
+ private:
+  std::list<IObserver *> _observers;
+};
 
-template <typename T>
-string to_string(const std::vector<T>& vec) {
-  auto oss = std::ostringstream();
+class TemperatureModel : public IObservable {
+ public:
+  float getF() { return _temperatureF; }
+  float getC() { return (_temperatureF - 32.0) * 5.0 / 9.0; }
 
-  if (vec.empty()) {
-    oss << "[]";
-    return oss.str();
+  void setF(float tempF) {
+    _temperatureF = tempF;
+    notifyUpdate();
   }
-  oss << format("[ {}", vec[0]);
 
-  bool dotes = false;
-  for (size_t i = 1; i < vec.size(); ++i) {
-    if (vec.size() > 10 && i >= 5 && i < vec.size() - 5) {
-      if (!dotes) {
-        oss << ", ...";
-        dotes = true;
-      }
-      continue;
-    }
-    oss << format(", {}", vec[i]);
+  void setC(float tempC) {
+    _temperatureF = tempC * 9.0 / 5.0 + 32.0;
+    notifyUpdate();
   }
-  oss << " ]";
 
-  return oss.str();
-}
+ private:
+  float _temperatureF;
+};
 
-void testFunction(vector<pair<int, vector<int>>>& tests) {
-  size_t i = 0;
-  for (auto& [expected, testVec] : tests) {
-    auto received = hIndex(testVec);
-
-    cout << format("\n Test {}: ", i);
-    if (received == expected) {
-      cout << format("- pass");
-    } else {
-      cout << to_string(testVec) << "\n";
-      cout << format("  Expected: {}\n", expected);
-      cout << format("  Received: {}\n", received);
-    }
-
-    ++i;
+class ConsoleView : public IObserver {
+ public:
+  ConsoleView(TemperatureModel *model) {
+    _model = model;
+    _model->addObserver(this);
   }
-}
+
+  virtual void update() {
+    using std::cout;
+    using std::format;
+
+    system("clear");
+    cout << format("Temperature in Celsius: {:0.2f}\n", _model->getC());
+    cout << format("Temperature in Farenheit: {:0.2f}\n", _model->getF());
+    cout << "Input temperature in Celsius: ";
+  }
+
+ private:
+  TemperatureModel *_model;
+};
+
+class Controller {
+ public:
+  Controller(TemperatureModel *model) { _model = model; }
+
+  void start() {
+    _model->setC(0);
+
+    float temp = 0;
+    do {
+      std::cin >> temp;
+      _model->setC(temp);
+    } while (temp != 0);
+  }
+
+ private:
+  TemperatureModel *_model;
+};
 
 int main() {
-  cout << "Warning: Last test is bad for demostration";
+  TemperatureModel model;
+  ConsoleView view(&model);
+  Controller controller(&model);
 
-  auto tests = vector<pair<int, vector<int>>>();
-  tests.push_back({3, {3, 0, 6, 1, 5}});
-  tests.push_back({1, {1, 3, 1}});
-  tests.push_back({0, {0}});
-  tests.push_back({1, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}});
-
-  testFunction(tests);
-
+  controller.start();
   return 0;
 }
+
