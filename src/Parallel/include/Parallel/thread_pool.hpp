@@ -33,7 +33,7 @@ template <typename F>
 auto ThreadPool::enqueue(F&& callback) -> std::future<decltype(callback())> {
   using retType = decltype(callback());
   using taskType = std::packaged_task<retType()>;
-  auto task_ptr = std::make_shared<taskType>(callback);
+  auto task_ptr = std::make_shared<taskType>(std::forward<F>(callback));
 
   auto future_object = task_ptr->get_future();
   {
